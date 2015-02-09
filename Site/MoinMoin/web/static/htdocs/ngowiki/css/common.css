@@ -97,6 +97,7 @@ pre.comment {
     padding: 0;
     margin: 0;
     border: 0;
+    display:none;
 }
 
 pre.comment:before {
