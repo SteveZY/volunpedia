@@ -42,9 +42,6 @@ class ListPagesByTag:
             if 'filterByTags' in form:
                 filterByTags = form['filterByTags'].split(",")
 
-            for tag in filterByTags:
-                ngowikiutil.update_tag_hitcount(tag)
-
             results = ngowikiutil.select_pages_by_tag(filterByTags, sortby, order, offset, length)
             total = ngowikiutil.count_pages_by_tag(filterByTags)
 

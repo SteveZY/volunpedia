@@ -561,7 +561,7 @@ class NgoWikiUtil:
         sql = '''
            SELECT DISTINCT RELATED_TAGS.ID, RELATED_TAGS.TAG, RELATED_TAGS.TYPE
            FROM PAGE_TAGS RELATED_PAGE_TAGS INNER JOIN TAGS RELATED_TAGS ON RELATED_PAGE_TAGS.TAG_ID = RELATED_TAGS.ID 
-           WHERE RELATED_PAGE_TAGS.PAGE_ID IN (%s) ORDER BY RELATED_TAGS.HITCOUNT DESC
+           WHERE RELATED_PAGE_TAGS.PAGE_ID IN (%s)
            ''' % (" INTERSECT ".join(tagfilter_sql_parts))
 
         cursor = self.db.cursor()
