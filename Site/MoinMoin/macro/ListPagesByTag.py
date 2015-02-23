@@ -14,6 +14,7 @@ class ListPagesByTag:
     def __init__(self, macro, filterByTags):
         self.macro = macro
         self.request = macro.request
+        self.user = macro.request.user
         self.formatter = macro.formatter
         self.page = macro.request.page
         self.filterByTags = filterByTags.split(",")
@@ -27,6 +28,7 @@ class ListPagesByTag:
             sortby = "lastmodified"
             order = "DESC"
             filterByTags = self.filterByTags
+            favorite = None
 
             form = self.request.values
             if 'from' in form:
@@ -39,19 +41,22 @@ class ListPagesByTag:
                     order = "ASC"
             if 'order' in form:
                 order = form['order']
+            if 'favorite' in form and form['favorite'] != "false" and self.user != None and self.user.valid:
+                favorite = self.user.id;
             if 'filterByTags' in form:
                 filterByTags = form['filterByTags'].split(",")
 
             for tag in filterByTags:
                 ngowikiutil.update_tag_hitcount(tag)
 
-            results = ngowikiutil.select_pages_by_tag(filterByTags, sortby, order, offset, length)
-            total = ngowikiutil.count_pages_by_tag(filterByTags)
+            results = ngowikiutil.select_pages_by_tag(filterByTags, favorite, sortby, order, offset, length)
+            total = ngowikiutil.count_pages_by_tag(filterByTags, favorite)
 
             buffer = []
             buffer.append('''
                 <script language="javascript">window.__ListPagesByTag_filterByTag = %(filterByTags)s;window.__ListPagesByTag_filterByTag_default = %(filterByTagsDefault)s;</script>
                 <div id="listpagesbytag_sorter"></div>
+				<div id="listpagesbytag_favorite"></div>
                 <div id="listpagesbytag_filter"></div>
             ''' % {"filterByTagsDefault": json.dumps(self.filterByTags), "filterByTags": json.dumps(",".join(filterByTags))})
 
@@ -91,7 +96,7 @@ class ListPagesByTag:
 
                 tags = (", ".join(
                           map(lambda x: '<a href=\'javascript:add_filter_by_tag(' + json.dumps(x["tag"]) + ')\' >' + x["tag"] + '</a>', 
-                              filter(lambda x: x["type"] == 1, ngowikiutil.select_page_tags_by_id(result["id"]))
+                              filter(lambda x: x["type"] == 1 or x["type"] == 2, ngowikiutil.select_page_tags_by_id(result["id"]))
                           )))
 
                 if len(tags) > 0:

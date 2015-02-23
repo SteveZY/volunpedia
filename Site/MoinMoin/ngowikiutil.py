@@ -102,6 +102,16 @@ class NgoWikiUtil:
                 except:
                     pass
 
+    def fixup_database_004(self):
+        fixupdb_sql_file = os.path.join(self.request.cfg.data_dir, "database", "fixup004.sql")
+        with open(fixupdb_sql_file, 'r') as f:
+            for line in f:
+                try:
+                    self.db.execute(line)
+                    self.db.commit()
+                except:
+                    pass
+
     def insert_tag(self, tag, type):
         uid = str(uuid.uuid1())
         self.db.execute('''
@@ -416,6 +426,51 @@ class NgoWikiUtil:
             DELETE FROM LIKES WHERE PAGE_ID = ?
             ''', (pageid,))
 
+    def insert_favorite(self, page, userid):
+        pageid = self.select_page_by_path(page.page_name)["id"]
+
+        record = self.select_favorite_by_page_and_userid(pageid, userid)
+        if record:
+            return record["id"]
+
+        uid = str(uuid.uuid1())
+        self.db.execute('''
+            INSERT OR IGNORE INTO FAVORITE(ID, PAGE_ID, USER_ID, LASTMODIFIED) VALUES(?, ?, ?, ?) 
+            ''', (uid, pageid, userid, long(time.time())))
+
+        return uid
+
+    def remove_favorite(self, page, userid):
+        pageid = self.select_page_by_path(page.page_name)["id"]
+
+        record = self.select_favorite_by_page_and_userid(pageid, userid)
+        if not record:
+            return False
+
+        uid = record["id"]
+        self.db.execute('''
+            DELETE FROM FAVORITE WHERE ID = ? 
+            ''', (uid, ))
+
+        return True
+
+    def select_favorite_by_page_and_userid(self, pageid, userid):
+        cursor = self.db.cursor()
+        cursor.execute('''
+            SELECT ID, PAGE_ID, USER_ID, LASTMODIFIED FROM FAVORITE WHERE PAGE_ID = ? AND USER_ID = ?
+            ''', (pageid, userid))
+        for row in cursor:
+            return {"id": row[0], "page_id": row[1], "user_id": row[2], "lastmodified": row[3]}
+
+    def has_user_favorite_page(self, userid, page):
+        pageid = self.select_page_by_path(page.page_name)["id"]
+        
+        record = self.select_favorite_by_page_and_userid(pageid, userid)
+        if not record:
+            return False
+
+        return True
+
     def select_latest_created_pages(self, tags, offset, length):
         p_orderby_clause = "PAGES.DATECREATED DESC"
        
@@ -444,7 +499,7 @@ class NgoWikiUtil:
             ret.append({"id": row[0], "path": row[1], "title": row[2], "logo": row[3], "summary": row[4], "lastmodified": row[5], "datecreated": row[6], "hitcount": row[7], "commentcount": row[8], "likecount": row[9], "superrecommend": row[10]})
         return ret
 
-    def select_pages_by_tag(self, tags, sortby, order, offset, length):
+    def select_pages_by_tag(self, tags, favoriteUid, sortby, order, offset, length):
         p_orderby_clause = ""
         if sortby == "hitcount":
             p_orderby_clause = "PAGES.HITCOUNT " + order
@@ -481,6 +536,15 @@ class NgoWikiUtil:
            ORDER BY %s
            LIMIT %s, %s
            ''' % (" INTERSECT ".join(tagfilter_sql_parts), p_featured_where_clause, p_orderby_clause, str(offset), str(length))
+
+        if favoriteUid:
+            sql = '''
+           SELECT PAGES.ID, PAGES.PATH, PAGES.TITLE, PAGES.LOGO, PAGES.SUMMARY, PAGES.LASTMODIFIED, PAGES.DATECREATED, PAGES.HITCOUNT, PAGES.COMMENTCOUNT, PAGES.LIKECOUNT, PAGES.SUPERRECOMMEND
+           FROM PAGES PAGES INNER JOIN FAVORITE FAVORITE ON PAGES.ID = FAVORITE.PAGE_ID AND FAVORITE.USER_ID = '%s' 
+           WHERE PAGES.ID IN (%s) %s
+           ORDER BY %s
+           LIMIT %s, %s
+           ''' % (favoriteUid, " INTERSECT ".join(tagfilter_sql_parts), p_featured_where_clause, p_orderby_clause, str(offset), str(length))
 
         cursor = self.db.cursor()
         cursor.execute(sql, tuple(tags))
@@ -536,7 +600,7 @@ class NgoWikiUtil:
             ret.append({"id": row[0], "path": row[1], "title": row[2], "logo": row[3], "summary": row[4], "lastmodified": row[5], "datecreated": row[6], "hitcount": row[7], "commentcount": row[8], "likecount": row[9], "superrecommend": row[10]})
         return ret
     
-    def count_pages_by_tag(self, tags):
+    def count_pages_by_tag(self, tags, favoriteUid):
         tagfilter_sql_part = '''
            SELECT PAGE_TAGS.PAGE_ID
            FROM PAGE_TAGS PAGE_TAGS INNER JOIN TAGS TAGS ON PAGE_TAGS.TAG_ID = TAGS.ID
@@ -552,18 +616,26 @@ class NgoWikiUtil:
            WHERE PAGES.ID IN (%s)
            ''' % (" INTERSECT ".join(tagfilter_sql_parts))
 
+        if favoriteUid:
+            sql = '''
+           SELECT COUNT(PAGES.ID) 
+           FROM PAGES PAGES INNER JOIN FAVORITE FAVORITE ON PAGES.ID = FAVORITE.PAGE_ID AND FAVORITE.USER_ID = '%s' 
+           WHERE PAGES.ID IN (%s)
+           ''' % (favoriteUid, " INTERSECT ".join(tagfilter_sql_parts))
+
         cursor = self.db.cursor()
         cursor.execute(sql, tuple(tags))
 
         for row in cursor:
             return row[0]
 
-    def select_related_tags(self, tags):
+    def select_related_tags(self, tags, favoriteUid):
         tagfilter_sql_part = '''
            SELECT PAGE_TAGS.PAGE_ID
            FROM PAGE_TAGS PAGE_TAGS INNER JOIN TAGS TAGS ON PAGE_TAGS.TAG_ID = TAGS.ID
            WHERE TAGS.TAG = ?
            '''
+
         tagfilter_sql_parts = []
         for tag in tags:
             tagfilter_sql_parts.append(tagfilter_sql_part)
@@ -573,6 +645,14 @@ class NgoWikiUtil:
            FROM PAGE_TAGS RELATED_PAGE_TAGS INNER JOIN TAGS RELATED_TAGS ON RELATED_PAGE_TAGS.TAG_ID = RELATED_TAGS.ID 
            WHERE RELATED_PAGE_TAGS.PAGE_ID IN (%s) ORDER BY RELATED_TAGS.HITCOUNT DESC
            ''' % (" INTERSECT ".join(tagfilter_sql_parts))
+
+        if favoriteUid:
+            sql = '''
+           SELECT DISTINCT RELATED_TAGS.ID, RELATED_TAGS.TAG, RELATED_TAGS.TYPE
+           FROM PAGE_TAGS RELATED_PAGE_TAGS INNER JOIN TAGS RELATED_TAGS ON RELATED_PAGE_TAGS.TAG_ID = RELATED_TAGS.ID 
+               INNER JOIN FAVORITE FAVORITE ON RELATED_PAGE_TAGS.PAGE_ID = FAVORITE.PAGE_ID AND FAVORITE.USER_ID = '%s'
+           WHERE RELATED_PAGE_TAGS.PAGE_ID IN (%s) ORDER BY RELATED_TAGS.HITCOUNT DESC
+           ''' % (favoriteUid, " INTERSECT ".join(tagfilter_sql_parts))
 
         cursor = self.db.cursor()
         cursor.execute(sql, tuple(tags))

@@ -208,6 +208,29 @@ $( window ).ready(function() {
 			document.getElementById("listpagesbytag_sorter").style.position = "relative";
 			document.getElementById("listpagesbytag_sorter").style.top = "-20px";
 			document.getElementById("listpagesbytag_sorter").style.float = "right";
+			document.getElementById("listpagesbytag_sorter").style.zIndex = "1000";
+		}, 1);
+	}
+	
+	if(!!document.getElementById("listpagesbytag_favorite") && $('#logout').length == 1) {
+	    var node = document.getElementById("listpagesbytag_favorite");
+		setTimeout(function(){
+		    favorite = get_query_parameter("favorite");
+			if(!favorite || favorite == 'false') {
+			    favorite = "false";
+				node.innerHTML = '<a id="listpagesbytag_favorite_link" href="javascript:;">我的收藏</a>';
+			} else {
+			    node.innerHTML = '<a id="listpagesbytag_favorite_link" href="javascript:;">显示全部</a>';
+			}
+		    $('#listpagesbytag_favorite_link').on("click", function(){
+				var url = create_request_url(get_request_url(), get_query_parameters(), {'favorite': (!favorite || favorite == 'false') ? "true" : "false", 'from': "0"});
+	            window.location.href = url;
+			});
+			document.getElementById("listpagesbytag_favorite").style.position = "relative";
+			document.getElementById("listpagesbytag_favorite").style.top = "-20px";
+			document.getElementById("listpagesbytag_favorite").style.float = "right";
+			document.getElementById("listpagesbytag_favorite").style.paddingRight = "10px";
+			document.getElementById("listpagesbytag_favorite").style.zIndex = "1000";
 		}, 1);
 	}
 });
@@ -298,6 +321,18 @@ function recommend() {
 
 function unrecommend() {
     $.ajax({url: get_request_url() + '?action=discussion&do=unlike&from=0&length=3&sessionId=' + getCookie('browser_user_id'), dataType: 'json', success: function(data){
+	    render_discussionpanel($('#page_discussion_panel')[0], data);
+	}});
+}
+
+function addFavorite() {
+    $.ajax({url: get_request_url() + '?action=discussion&do=addFavorite&from=0&length=3&sessionId=' + getCookie('browser_user_id'), dataType: 'json', success: function(data){
+	    render_discussionpanel($('#page_discussion_panel')[0], data);
+	}});
+}
+
+function removeFavorite() {
+    $.ajax({url: get_request_url() + '?action=discussion&do=removeFavorite&from=0&length=3&sessionId=' + getCookie('browser_user_id'), dataType: 'json', success: function(data){
 	    render_discussionpanel($('#page_discussion_panel')[0], data);
 	}});
 }
@@ -417,12 +452,13 @@ function render_discussionpanel(div, data, offset, length) {
 					t = t + '<td style="padding:0px;margin:0px"><div style="padding-top: 20px;">';
 					t = t + (!data.hasUserLikedPage ? '<a href="javascript:recommend()">我也喜欢</a>' : '<a href="javascript:unrecommend()">取消喜欢</a>');
 					if($('#logout').length == 1) {
-						t = t + '<span style="padding-left:5px;">&nbsp;</span>' + '<a href="javascript:comment()">我要评论</a>';
+						t = t + '<span style="padding-left:10px;">&nbsp;</span>' + '<a href="javascript:comment()">我要评论</a>';
+						t = t + '<span style="padding-left:10px;">&nbsp;</span>' + (!data.hasUserFavoritedPage ? '<a href="javascript:addFavorite()">我要收藏</a>' : '<a href="javascript:removeFavorite()">取消收藏</a>');
 						if(!document.getElementById('page_edit_disabled')) {
-							t = t + '<span style="padding-left:5px;"><a href="' + create_request_url(get_request_url(), [], {'action': 'edit', 'editor': "gui"}) + '">我要改良</a></span>';
+							t = t + '<span style="padding-left:10px;"><a href="' + create_request_url(get_request_url(), [], {'action': 'edit', 'editor': "gui"}) + '">我要改良</a></span>';
 						}
 						if(data.isSuperUser) {
-							t = t + '<span style="padding-left:5px;">&nbsp;</span>' + '<a href="javascript:superrecommend()">特别推荐</a>';
+							t = t + '<span style="padding-left:10px;">&nbsp;</span>' + '<a href="javascript:superrecommend()">特别推荐</a>';
 						}
 					}
 					t = t + '</div></td>';
@@ -499,7 +535,11 @@ function displayRelatedTagsPanel(data) {
 	    document.getElementById('relatedTagsPanel').style.display = '';
 	}
     if(!data) {
-		$.ajax({url: get_request_url() + '?action=relatedtags&tags=' + encodeURIComponent(window.__ListPagesByTag_filterByTag), dataType: 'json', success: function(data){
+	    url = get_request_url() + '?action=relatedtags&tags=' + encodeURIComponent(window.__ListPagesByTag_filterByTag);
+		if(get_query_parameter('favorite')) {
+		    url = url + '&favorite=' + encodeURIComponent(get_query_parameter('favorite'));
+		}
+		$.ajax({url: url, dataType: 'json', success: function(data){
 					displayRelatedTagsPanel(data);
 				}});
 	} else {
