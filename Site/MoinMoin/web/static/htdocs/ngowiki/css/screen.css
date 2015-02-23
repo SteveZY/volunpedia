@@ -22,17 +22,18 @@ form#searchform {
     clear: right;
     text-align: right;
 	position: relative;
-	top: 25px;
-	right: 1em;
+	top: 38px;
+	right: 5em;
 }
 form#searchform div#simpleSearch {
 	display: block;
-	width: 20em;
+	width: 22em;
 	height: 1.8em;
 	margin-top: 0.65em;
 	position: relative;
 	min-height: 1px;
 	border: solid 1px #aaa;
+	border-radius: 3px;
 	color: black;
 	background-color: white;
 	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAQCAIAAABY/YLgAAAAJUlEQVQIHQXBsQEAAAjDoND/73UWdnerhmHVsDQZJrNWVg3Dqge6bgMe6bejNAAAAABJRU5ErkJggg==);
@@ -46,9 +47,9 @@ form#searchform input#searchinput {
 	width: 90%;
 	margin: 0;
 	padding: 0;
-	padding-left: 0.2em;
-	padding-top: 0.2em;
-	padding-bottom: 0.2em;
+	padding-left: .3em;
+	padding-top: .3em;
+	padding-bottom: .2em;
 	outline: none;
 	border: none;
 	font-size: 13px;
@@ -320,9 +321,9 @@ ul#username {
 	list-style-image: none;
 	margin: 0;
 	padding-left: 10em;
-	right: 1em;
+	right: 4.5em;
 	position: absolute;
-    top: 0.33em;
+    top: 1em;
 }
 
 ul#username  li{
@@ -338,6 +339,11 @@ ul#username  li{
 ul#username li a{
     text-decoration: none;
 	color: #0645ad;
+	padding: 5px 10px;
+	border: 1px solid #57c553;
+	border-radius: 3px;
+	color: white;
+	background-color: #57c553;
 }
 
 #previewbelow {
@@ -476,26 +482,59 @@ div.table-of-contents ul li{
 	width: 100%;
 	overflow: hidden;
 }
+.mainpageHeader .stats_block {
+    width: 330px;
+    
+    position: absolute;
+    top: 6.5em;
+    right: 5.6em;
+    text-align: center;
+    background-color: #57c553;
+    color: white;
+}
+.mainpageHeader .stats_block h1 {
+    font-family: sans-serif;
+    font-size: 250%;
+    color: white;
+    padding: 0;
+    left: 0;
+    margin: 5px;
+}
+#content .mainpageHeader .stats_block a.join_us_btn {
 
+    border: 1px solid #aaa;
+    background-color: #FCCA2F;
+    padding: 5px 82px;
+    border-radius: 4px;
+    color: black;
+    font-weight: bold;
+    font-size: 1.6em;
+    cursor: pointer;
+}
+#content a.know_more {
+    float: right;
+    border: 1px solid #aaa;
+    background-color: #FCCA2F;
+    border-radius: 4px;
+    color: black;
+}
 .mainpageHeader .stats {
-	float: right;
-	color: rgb(185, 181, 181);
 	line-height: 1.8em;
 	font-size: 1.06em;
-	position: relative;
-	top: -6em;
+	margin-top: 5px;
 }
 
 .mainpageHeader .stats  a{
     font-size: 1.4em;
-    color: rgb(144, 144, 177);
+    color: white;
     font-family: serif;
 	font-weight: bold;
 }
 
 .mainpageHeader  {
-    height: 13em;
+    height: 16em;
     border-bottom: 1px solid rgb(235, 235, 235);
+    margin-bottom: 5em;
 }
 
 table.presentation {
@@ -516,7 +555,7 @@ table.presentation td.highlightcolumn {
 }
 
 table.presentation td.highlightcolumn .highlightbox {
-	padding-top: 1.5em;
+/* 	padding-top: 1.5em; */
     padding-left: 1em;
 	padding-right: 2em;
 	position: relative;
@@ -524,17 +563,22 @@ table.presentation td.highlightcolumn .highlightbox {
 }
 
 table.presentation td.highlightcolumn .sectionDivider {
-    margin-top: 3.5em;
+    margin-top: 1.5em;
 	margin-bottom: 1.5em;
-	border-bottom: 1px solid rgb(228, 228, 228);
+	
+    /* border-bottom: 1px solid rgb(228, 228, 228); */
 	margin-right: 2em;
 }
 
 table.presentation td.highlightcolumn .sectiontitle {
-    color: #259;
+    color: white;
 	font-size: 1.5em;
     letter-spacing: .16em;
-	font-weight: bold;
+	
+    /* font-weight: bold; */
+    text-align: center;
+    /* width: 102%; */
+    background-color: #57c553;
 }
 
 table.presentation td.highlightcolumn .sectioncontent {
@@ -543,7 +587,7 @@ table.presentation td.highlightcolumn .sectioncontent {
 }
 
 table.presentation td.highlightcolumn .sectioncontent td{
-    padding: 2em;
+    padding: 0em;
 }
 
 table.presentation td.highlightcolumn .sectioncontent .logo {
@@ -556,13 +600,17 @@ table.presentation td.highlightcolumn .sectioncontent .logo {
 
 table.presentation td.highlightcolumn .sectioncontent .logo img {
     width: 7em;
-	padding-top: 1em;
+	
+    /* padding-top: 1em; */
+    height: 7em;
 }
 
 table.presentation td.highlightcolumn .sectioncontent .desc {
     vertical-align: top;
 	text-align: left;
-	padding-top: 2.5em;
+}
+table.presentation td.highlightcolumn .sectioncontent .desc p a {
+    font-weight: bold;
 }
 
 table.presentation td.newscolumn {
@@ -574,34 +622,49 @@ table.presentation td.newscolumn .newsbox {
 	top: -3em;
     width: 25em;
 	height: 100%;
-	border: 1px solid #E8E8E8;
-    box-shadow: 0px 1px 3px rgba(0,0,0,0.08);
+	
+    border-left: 1px solid #E8E8E8;
+    /* box-shadow: 0px 1px 3px rgba(0,0,0,0.08); */
     background: #FFF;
-	padding: 1.8em 2.5em;
+	
+    padding: 0em 2.5em;
 }
 
 table.presentation td.newscolumn .sectiontitle {
-    color: #259;
+    color: black;
 	font-size: 1.5em;
     letter-spacing: .16em;
 	font-weight: bold;
 }
 
 table.presentation td.newscolumn .sectioncontent {
-    margin-top: 1.5em;
+    margin-top: 1em;
 	font-size: 1.05em;
 }
-
+#content .sectioncontent a.create_content_btn {
+    border: 1px solid #aaa;
+    background-color: #FCCA2F;
+    padding: 13px 100px;
+    border-radius: 4px;
+    color: black;
+    font-weight: bold;
+    font-size: 1.6em;
+    cursor: pointer;
+    margin-left: 1.2em;
+}
 table.presentation td.newscolumn .sectioncontent td {
-    padding-top: 0.5em;
-	padding-bottom: 0.5em;
+    /* padding-top: 0.5em; */
+	
+    /* padding-bottom: 0.5em; */
 	vertical-align: top;
 }
 
 table.presentation td.newscolumn .sectioncontent td.datetime {
-    font-weight: 600;
-	color: #0b0080;
+    font-weight: normal;
+	
+    color: black;
 	width: 7em;
+    font-style: italic;
 }
 
 table.presentation td.newscolumn .sectioncontent .actionLink {
@@ -612,9 +675,11 @@ table.presentation td.newscolumn .sectioncontent .actionLink {
 }
 
 table.presentation td.newscolumn .sectionDivider {
-    margin-top: 1.5em;
-	margin-bottom: 2.8em;
-	border-bottom: 1px solid rgb(228, 228, 228);
+    margin-top: 1em;
+	
+    margin-bottom: 1em;
+	
+    border-bottom: 2px solid #57c553;
 }
 
 .participate_button_div {
@@ -676,12 +741,12 @@ table.presentation td.newscolumn .sectionDivider {
 	margin-left: -5px;
 	padding-bottom: 0.5em;
 	padding-top: 0.5em;
-	font-family: 'Adobe ���� Std R';
+	font-family: 'Adobe Ã¯Â¿Â½Ã¯Â¿Â½Ã¯Â¿Â½Ã¯Â¿Â½ Std R';
 }
 
 .joinUsPageText {
     font-size: 1.2em;
-    font-family: 'Adobe ���� Std R';
+    font-family: 'Adobe Ã¯Â¿Â½Ã¯Â¿Â½Ã¯Â¿Â½Ã¯Â¿Â½ Std R';
 	line-height: 150%;
 }
 

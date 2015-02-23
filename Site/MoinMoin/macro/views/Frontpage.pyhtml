@@ -3,10 +3,15 @@
 	<div class="slogan">
 		<img src="${slogan_url}">
 	</div>
-	<div class="stats">
-	    <div>已录入 <a href="/服务产品">${totalcount_activities}</a> 个志愿活动</div>
-		<div>已有 <a href="/公益机构">${totalcount_ngos}</a> 个公益机构参与 </div>
-		<div>已有 <a href="/企业志愿组织">${totalcount_enterprises}</a> 个企业志愿组织参与 </div>
+	<div class="stats_block">
+		<h1>一起趣志愿</h1>
+		<p>好创意，可复制，可修改，不可被埋没！</p>
+		<a href="/join_us" class="join_us_btn">开始参与</a>
+		<div class="stats">
+		    <div>已录入 <a href="/服务产品">${totalcount_activities}</a> 个志愿活动</div>
+			<div>已有 <a href="/公益机构">${totalcount_ngos}</a> 个公益机构参与 </div>
+			<div>已有 <a href="/企业志愿组织">${totalcount_enterprises}</a> 个企业志愿组织参与 </div>
+		</div>
 	</div>
 </div>
 <table class="presentation">
@@ -24,8 +29,7 @@
 								 <td class="desc">
 									 <p><a href="${item['link']}">${item['title']}</a></p>
 									 ${item['summary']}
-									 <br>
-									 ${item['superrecommend']}
+									 <a href="${item['link']}" class="know_more">了解更多</a>
 								 </td>
 							  </tr>
 							  <?py #endfor ?>
@@ -45,8 +49,7 @@
 								 <td class="desc">
 									 <p><a href="${item['link']}">${item['title']}</a></p>
 									 ${item['summary']}
-									 <br>
-									 ${item['superrecommend']}
+									 <a href="${item['link']}" class="know_more">了解更多</a>
 								 </td>
 							  </tr>
 							  <?py #endfor ?>
@@ -108,13 +111,10 @@
 					   志愿百科是一个内容开放的在线的志愿活动分享平台，它是由个人和团体自发组成的，是一个发展中的志愿活动分享的资源平台；并允许任何人通过因特网联接在这里创建和修改活动内容。
 					   <br><br>
 					   志愿百科的成长需要你的参与，你能通过志愿百科与更多的人分享、传递公益理念，与其他热心公益活动的朋友们一起做一次想做就能做的志愿活动。
-					   <div class="participate_button_div">
-						   <a href="/join_us">
-							   <span class="participate_button">
-								   <span class="participate_button_text">开始参与志愿百科</span>
-							   </span>
-						   </a>
-					   </div>
+				   </div>
+				   <div class="sectionDivider"></div>
+				   <div class="sectioncontent">
+					   <a href="" class="create_content_btn">创建内容</a>
 				   </div>
 				</div>
 			</td>
