@@ -177,7 +177,17 @@ class NgoWikiUtil:
             ''', (path,))
         for row in cursor:
             return {"id": row[0], "path": row[1], "title": row[2], "logo": row[3], "summary": row[4], "lastmodified": row[5], "datecreated": row[6], "hitcount": row[7], "commentcount": row[8], "likecount": row[9], "superrecommend": row[10]}
-    
+
+    def select_pages(self):
+        cursor = self.db.cursor()
+        cursor.execute('''
+            SELECT ID, PATH, TITLE, LOGO, SUMMARY, LASTMODIFIED, DATECREATED, HITCOUNT, COMMENTCOUNT, LIKECOUNT, SUPERRECOMMEND FROM PAGES
+            ''')
+        ret = []
+        for row in cursor:
+            ret.append({"id": row[0], "path": row[1], "title": row[2], "logo": row[3], "summary": row[4], "lastmodified": row[5], "datecreated": row[6], "hitcount": row[7], "commentcount": row[8], "likecount": row[9], "superrecommend": row[10]})
+        return ret
+
     def select_page_by_id(self, uid):
         cursor = self.db.cursor()
         cursor.execute('''
@@ -185,7 +195,7 @@ class NgoWikiUtil:
             ''', (uid,))
         for row in cursor:
             return {"id": row[0], "path": row[1], "title": row[2], "logo": row[3], "summary": row[4], "lastmodified": row[5], "datecreated": row[6], "hitcount": row[7], "commentcount": row[8], "likecount": row[9], "superrecommend": row[10]}
-    
+
     def remove_page_by_path(self, path):
         record = self.select_page_by_path(path)
         if record:

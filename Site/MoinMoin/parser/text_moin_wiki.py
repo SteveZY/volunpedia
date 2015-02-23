@@ -14,6 +14,7 @@ from MoinMoin import log
 logging = log.getLogger(__name__)
 
 from MoinMoin import config, wikiutil, macro
+from MoinMoin.ngowikiutil import NgoWikiUtil
 from MoinMoin.Page import Page
 from MoinMoin.support.python_compatibility import set
 
@@ -402,6 +403,7 @@ class Parser:
         self.cfg = request.cfg
         self.line_anchors = kw.get('line_anchors', True)
         self.start_line = kw.get('start_line', 0)
+        self.content_only = kw.get('content_only', 0)
         self.macro = None
 
         # currently, there is only a single, optional argument to this parser and
@@ -1449,13 +1451,24 @@ class Parser:
         if self.wrapping_div_class:
             self.request.write(self.formatter.div(1, css_class=self.wrapping_div_class))
 
+        existingPages = []
+        ngowikiutil = NgoWikiUtil(self.request)
+        ngowikiutil.open_database()
+        try:
+            existingPages = ngowikiutil.select_pages()
+        except:
+            pass
+        finally:
+            ngowikiutil.close_database(True)
+
         # Main loop
+        output = u''
         for line in self.lines:
             self.lineno += 1
 
             self.line_anchor_printed = 0
             if not self.in_table:
-                self.request.write(self._line_anchordef())
+                output = output + self._line_anchordef()
             self.table_rowstart = 1
             self.line_was_empty = self.line_is_empty
             self.line_is_empty = 0
@@ -1468,7 +1481,7 @@ class Parser:
                 for pi in ("##", "#format", "#refresh", "#redirect", "#deprecated",
                            "#pragma", "#form", "#acl", "#language"):
                     if line.lower().startswith(pi):
-                        self.request.write(self.formatter.comment(line))
+                        output = output + self.formatter.comment(line)
                         found = True
                         break
                 if not found:
@@ -1484,13 +1497,13 @@ class Parser:
                 # Paragraph break on empty lines
                 if not line.strip():
                     if self.in_table:
-                        self.request.write(self.formatter.table(0))
-                        self.request.write(self._line_anchordef())
+                        output = output + (self.formatter.table(0))
+                        output = output + (self._line_anchordef())
                         self.in_table = 0
                     # CHANGE: removed check for not self.list_types
                     # p should close on every empty line
                     if self.formatter.in_p:
-                        self.request.write(self.formatter.paragraph(0))
+                        output = output + (self.formatter.paragraph(0))
                     self.line_is_empty = 1
                     continue
 
@@ -1518,7 +1531,7 @@ class Parser:
                             indtype = "dl"
 
                 # output proper indentation tags
-                self.request.write(self._indent_to(indlen, indtype, numtype, numstart))
+                output = output + (self._indent_to(indlen, indtype, numtype, numstart))
 
                 # Table mode
                 # TODO: move into function?
@@ -1526,7 +1539,7 @@ class Parser:
                     and line.endswith("|| ") and len(line) >= 5 + indlen):
                     # Start table
                     if self.list_types and not self.in_li:
-                        self.request.write(self.formatter.listitem(1, style="list-style-type:none"))
+                        output = output + (self.formatter.listitem(1, style="list-style-type:none"))
                         ## CHANGE: no automatic p on li
                         ##self.request.write(self.formatter.paragraph(1))
                         self.in_li = 1
@@ -1534,9 +1547,9 @@ class Parser:
                     # CHANGE: removed check for self.in_li
                     # paragraph should end before table, always!
                     if self.formatter.in_p:
-                        self.request.write(self.formatter.paragraph(0))
+                        output = output + (self.formatter.paragraph(0))
                     attrs, attrerr = self._getTableAttrs(line[indlen+2:])
-                    self.request.write(self.formatter.table(1, attrs) + attrerr)
+                    output = output + (self.formatter.table(1, attrs) + attrerr)
                     self.in_table = True # self.lineno
                 elif (self.in_table and not
                       # intra-table comments should not break a table
@@ -1546,17 +1559,47 @@ class Parser:
                        len(line) >= 5 + indlen)):
 
                     # Close table
-                    self.request.write(self.formatter.table(0))
-                    self.request.write(self._line_anchordef())
+                    output = output + (self.formatter.table(0))
+                    output = output + (self._line_anchordef())
                     self.in_table = 0
 
             # Scan line, format and write
             formatted_line = self.scan(line, inhibit_p=inhibit_p)
-            self.request.write(formatted_line)
+
+
+            output = output + (formatted_line)
 
 
         # Close code displays, paragraphs, tables and open lists
-        self.request.write(self._undent())
+        output = output + (self._undent())
+
+        # replace page names
+        if 'action' not in self.request.values and not self.content_only:
+            for existingPage in existingPages:
+                existingPage_link = u'<a target="_blank" href="' + Page(self.request, existingPage["path"]).url(self.request) + u'">' + existingPage["title"] + u'</a>'
+                t = u''
+                idx = 0
+                while (idx != -1):
+                    tidx = output.find(existingPage["title"], idx)
+
+                    aidx = output.find(u'<a', idx)
+                    if aidx != -1 and aidx < tidx:
+                        tidx = output.find(u'</a>', aidx)
+                        if tidx == -1: break
+                        t = t + output[idx:tidx]
+                        idx = tidx
+                        continue
+                    
+                    if tidx == -1: break
+                    if output[tidx - 1] == '/':
+                        t = t + output[idx:tidx] + existingPage["title"]
+                        idx = tidx + len(existingPage["title"])
+                        continue
+                    t = t + output[idx:tidx] + existingPage_link
+                    idx = tidx + len(existingPage["title"])
+                output = t + output[idx:]
+
+        self.request.write(output)
         if self.in_pre: self.request.write(self.formatter.preformatted(0))
         if self.formatter.in_p: self.request.write(self.formatter.paragraph(0))
         if self.in_table: self.request.write(self.formatter.table(0))
