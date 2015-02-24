@@ -8,6 +8,10 @@
     @license: GNU GPL, see COPYING for details.
 """
 
+import sys
+reload(sys) 
+sys.setdefaultencoding('utf8')
+
 import re
 
 from MoinMoin import log
