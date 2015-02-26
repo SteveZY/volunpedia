@@ -1593,6 +1593,22 @@ class Parser:
                         t = t + output[idx:tidx]
                         idx = tidx
                         continue
+                        
+                    h1idx = output.find(u'<h1', idx)
+                    if h1idx != -1 and h1idx < tidx:
+                        tidx = output.find(u'/h1>', h1idx)
+                        if tidx == -1: break
+                        t = t + output[idx:tidx]
+                        idx = tidx
+                        continue
+
+                    summaryidx = output.find(u'<div class="summary">', idx)
+                    if summaryidx != -1 and summaryidx < tidx:
+                        tidx = output.find(u'</div>', summaryidx)
+                        if tidx == -1: break
+                        t = t + output[idx:tidx]
+                        idx = tidx
+                        continue
                     
                     if tidx == -1: break
                     if output[tidx - 1] == '/':
