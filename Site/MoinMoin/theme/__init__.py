@@ -1,4 +1,4 @@
-# -*- coding: iso-8859-1 -*-
+# -*- coding: utf-8 -*-
 """
     MoinMoin - Theme Package
 
@@ -325,11 +325,14 @@ class ThemeBase:
                 userlinks.append(d['page'].link_to(request, text=_('Logout'),
                                                    querystr={'action': 'logout', 'logout': 'logout'}, id='logout', rel='nofollow'))
         else:
+            registerQuery = {'action':'newaccount'}
             query = {'action': 'login'}
             # special direct-login link if the auth methods want no input
             if request.cfg.auth_login_inputs == ['special_no_input']:
                 query['login'] = '1'
             if request.cfg.auth_have_login:
+                userlinks.append(d['page'].link_to(request, text=u'注册',
+                                                   querystr=registerQuery, id='register', rel='nofollow'))
                 userlinks.append(d['page'].link_to(request, text=_("Login"),
                                                    querystr=query, id='login', rel='nofollow'))
 

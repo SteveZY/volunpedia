@@ -262,8 +262,8 @@ class MoinAuth(BaseAuth):
         #if request.cfg.openidrp_allow_registration:
         msg = _('If you do not have an account, <a href="%(userprefslink)s">you can create one now</a>. ') % {
               'userprefslink': userprefslink}
-        msg += _('<a href="%(sendmypasswordlink)s">Forgot your password?</a>') % {
-               'sendmypasswordlink': sendmypasswordlink}
+        #msg += _('<a href="%(sendmypasswordlink)s">Forgot your password?</a>') % {
+        #       'sendmypasswordlink': sendmypasswordlink}
         return msg
 
         #return _('If you do not have an account, <a href="%(userprefslink)s">you can create one now</a>. '
