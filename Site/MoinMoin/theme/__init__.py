@@ -313,9 +313,7 @@ class ThemeBase:
                 aliasname = name
             title = "%s @ %s" % (aliasname, interwiki[0])
             # link to (interwiki) user homepage
-            homelink = (request.formatter.interwikilink(1, title=title, id="userhome", generated=True, *interwiki) +
-                        request.formatter.text(name) +
-                        request.formatter.interwikilink(0, title=title, id="userhome", *interwiki))
+            homelink = request.formatter.text(name)
             userlinks.append(homelink)
             # link to userprefs action
             if 'userprefs' not in self.request.cfg.actions_excluded:
