@@ -11,7 +11,11 @@ def execute(pagename, request):
     try:
         form = request.values
         tags = form.get('tags').split(",")
-        relatedtags = ngowikiutil.select_related_tags(tags)
+        favorite = None
+        if 'favorite' in form and form['favorite'] != "false" and request.user != None and request.user.valid:
+            favorite = request.user.id;
+
+        relatedtags = ngowikiutil.select_related_tags(tags, favorite)
         for tag in tags:
             for relatedtag in relatedtags:
                 if relatedtag["tag"] == tag:

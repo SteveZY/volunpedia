@@ -120,7 +120,7 @@ class Formatter(text_html.Formatter):
             result = "<<%s(%s)>>" % (name, args)
         else:
             result = "<<%s>>" % name
-        return '<span style="background-color:#ffff11">%s</span>' % wikiutil.escape(result)
+        return '<span style="background-color:#ffff11;display:none">%s</span>' % wikiutil.escape(result)
 
     def parser(self, parser_name, lines):
         """ parser_name MUST be valid!

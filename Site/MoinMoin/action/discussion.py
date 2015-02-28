@@ -38,6 +38,21 @@ class DiscussionBoard:
             self.ngowikiutil.remove_likes_by_id(like_info["id"])
             self.ngowikiutil.commit_database()
 
+    def addFavorite(self, sessionId):
+        if self.user == None or not self.user.valid:
+            return
+        userId = self.user.id
+        if not self.ngowikiutil.has_user_favorite_page(userId, self.page):
+            self.ngowikiutil.insert_favorite(self.page, userId)
+            self.ngowikiutil.commit_database()
+
+    def removeFavorite(self, sessionId):
+        if self.user == None or not self.user.valid:
+            return
+        userId = self.user.id
+        self.ngowikiutil.remove_favorite(self.page, userId)
+        self.ngowikiutil.commit_database()
+
     def comment(self, comment):
         if self.user == None or not self.user.valid:
             return
@@ -83,7 +98,12 @@ class DiscussionBoard:
             has_user_liked_page = self.ngowikiutil.has_user_liked_page(self.user.id, self.page)
         else: 
             has_user_liked_page = self.ngowikiutil.has_user_liked_page('anonymous-' + sessionId, self.page)
-        return {"commentcount": page_info["commentcount"], "likecount": page_info["likecount"], "hasUserLikedPage": has_user_liked_page, "comments": {"offset": offset, "length": length, "items": comment_list}, "isSuperUser": isSuperUser, "superrecommend": page_info["superrecommend"]}
+        has_user_favorite_page = False
+        if self.user != None and self.user.valid:
+            has_user_favorite_page = self.ngowikiutil.has_user_favorite_page(self.user.id, self.page)
+        else: 
+            has_user_favorite_page = False
+        return {"commentcount": page_info["commentcount"], "likecount": page_info["likecount"], "hasUserLikedPage": has_user_liked_page, "hasUserFavoritedPage": has_user_favorite_page, "comments": {"offset": offset, "length": length, "items": comment_list}, "isSuperUser": isSuperUser, "superrecommend": page_info["superrecommend"]}
 
 def execute(pagename, request):
     discussion_board = DiscussionBoard(request, pagename)
@@ -94,6 +114,10 @@ def execute(pagename, request):
                 discussion_board.like(form['sessionId'])
             elif form.get('do') == 'unlike':
                 discussion_board.unlike(form['sessionId'])
+            elif form.get('do') == 'addFavorite':
+                discussion_board.addFavorite(form['sessionId'])
+            elif form.get('do') == 'removeFavorite':
+                discussion_board.removeFavorite(form['sessionId'])
             elif form.get('do') == 'comment':
                 discussion_board.comment(form.get('content'))
             elif form.get('do') == 'removecomment':

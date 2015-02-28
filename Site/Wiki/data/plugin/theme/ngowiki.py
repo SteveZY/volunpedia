@@ -148,6 +148,8 @@ class Theme(rightsidebar.Theme):
         head.append(u'\n<script type="text/javascript" src="%s/%s/js/json2.js"></script>' % (self.cfg.url_prefix_static, self.name))
         head.append(u'\n<script type="text/javascript" src="%s/%s/js/ngowiki_v20140311.js"></script>' % (self.cfg.url_prefix_static, self.name))
         head.append(u'\n<script type="text/javascript">window.url_prefix_static="%s";</script>' % (self.cfg.url_prefix_static))
+        head.append(u'\n<meta property="qc:admins" content="46715120776674560541163757" />')
+        head.append(u'\n<meta property="wb:webmaster" content="1a605196e8a8f55c" />')
         return '\n'.join(head)
 
     def wikipanel(self, d):

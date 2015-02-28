@@ -1012,7 +1012,7 @@ class Page(object):
         content_only = keywords.get('content_only', 0)
         omit_footnotes = keywords.get('omit_footnotes', 0)
         content_id = keywords.get('content_id', 'content')
-        do_cache = keywords.get('do_cache', 1)
+        do_cache = 0# keywords.get('do_cache', 1)
         send_special = keywords.get('send_special', False)
         print_mode = keywords.get('print_mode', 0)
         if print_mode:
@@ -1222,7 +1222,8 @@ class Page(object):
                                    format=pi['format'],
                                    format_args=pi['formatargs'],
                                    do_cache=do_cache,
-                                   start_line=pi['lines'])
+                                   start_line=pi['lines'],
+                                   content_only=content_only)
 
             # check for pending footnotes
             if getattr(request, 'footnotes', None) and not omit_footnotes:

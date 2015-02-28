@@ -30,12 +30,13 @@ class FrontpageMacro:
             ngowikiutil = NgoWikiUtil(self.request)
             try:
                 ngowikiutil.open_database()
-                FrontpageMacro.totalcount_activities = ngowikiutil.count_pages_by_tag([u'服务产品类']) + ngowikiutil.count_pages_by_tag([u'视听产品类']) + ngowikiutil.count_pages_by_tag([u'实体产品类'])
-                FrontpageMacro.totalcount_ngos = ngowikiutil.count_pages_by_tag([u'公益机构类'])
-                FrontpageMacro.totalcount_enterprises = ngowikiutil.count_pages_by_tag([u'企业志愿组织类'])
+                FrontpageMacro.totalcount_activities = ngowikiutil.count_pages_by_tag([u'服务产品类'], None) + ngowikiutil.count_pages_by_tag([u'视听产品类'], None) + ngowikiutil.count_pages_by_tag([u'实体产品类'], None)
+                FrontpageMacro.totalcount_ngos = ngowikiutil.count_pages_by_tag([u'公益机构类'], None)
+                FrontpageMacro.totalcount_enterprises = ngowikiutil.count_pages_by_tag([u'企业志愿组织类'], None)
                 FrontpageMacro.featured_activities = ngowikiutil.select_pages_with_one_of_tags([u'服务产品类', u'视听产品类', u'实体产品类'], 'featured', 'DESC', 0, 20)
-                for record in FrontpageMacro.featured_activities[0:2]:
+                for record in FrontpageMacro.featured_activities[0:3]:
                     record["summary"] = record["summary"].replace("'''", "")
+                    record["summary"] = filter_summary(record["summary"], 50);
                     pagename = record["path"]
                     page = Page(self.request, pagename)
                     record["link"] = page.url(self.request)
@@ -52,9 +53,10 @@ class FrontpageMacro:
                                 findLogo = True
                         if not findLogo:
                             record["logo_link"] = self.request.cfg.url_prefix_static + "/ngowiki/img/no-logo.png"
-                FrontpageMacro.featured_ngos = ngowikiutil.select_pages_by_tag([u'公益机构类'], 'featured', 'DESC', 0, 2)
+                FrontpageMacro.featured_ngos = ngowikiutil.select_pages_by_tag([u'公益机构类'], None, 'featured', 'DESC', 0, 2)
                 for record in FrontpageMacro.featured_ngos:
                     pagename = record["path"]
+                    record["summary"] = filter_summary(record["summary"], 50)
                     page = Page(self.request, pagename)
                     record["link"] = page.url(self.request)
                     if len(record["logo"]) > 0 and exists(self.request, record["path"], record["logo"]):
@@ -76,7 +78,7 @@ class FrontpageMacro:
                         record["recently_added_type"] = "ngo"
                     else:
                         record["recently_added_type"] = "enterprise"
-                FrontpageMacro.news_items = ngowikiutil.select_pages_by_tag([u'新闻动态类'], 'featured', 'DESC', 0, 100)
+                FrontpageMacro.news_items = ngowikiutil.select_pages_by_tag([u'新闻动态类'], None, 'featured', 'DESC', 0, 100)
                 for record in FrontpageMacro.news_items:
                     pagename = record["path"]
                     page = Page(self.request, pagename)
@@ -109,4 +111,10 @@ class FrontpageMacro:
 
 def macro_FrontpageMacro(macro):
     return FrontpageMacro(macro).execute()
+
+def filter_summary(summary, length):
+    if len(summary) < length:
+        return summary
+    else:
+        return summary[0:length] + "..."
 
