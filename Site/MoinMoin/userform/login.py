@@ -86,13 +86,13 @@ class Login:
 
                 self.make_row(_('OpenID'), [op_select, ])
             else:
-                self.make_row(_('OpenID'), [
+                self.make_row('', [
                     html.INPUT(
-                        type="text", size="32", name="openid_identifier",
+                        type="hidden", size="32", name="openid_identifier",
                         id="openididentifier"
                     ),
                 ])
-
+             
         # Need both hidden field and submit values for auto-submit to work
         self.make_row('', [
             html.INPUT(type="hidden", name="login", value=_('Login')),
@@ -100,6 +100,21 @@ class Login:
                 type="submit", name='login', value=_('Login')
             ),
         ])
+
+        ## QQ and Weibo login
+        if 'openid_identifier' in cfg.auth_login_inputs:
+            qq_args = {'id':"qq_login_btn", 'class':"WB_loginButton WB_widgets"}
+            wb_args = {'id':"wb_connect_btn"}
+            self.make_row(_('OpenID'), [
+                html.SPAN(**qq_args),
+                html.Raw(4 * ' '),
+                html.SPAN(**wb_args),
+                html.Raw("""<script type="text/javascript">
+qq_login();
+wb_login();
+</script>
+"""),
+            ])
 
         # Automatically submit the form if only a single OpenID Provider is allowed
         if 'openid_identifier' in cfg.auth_login_inputs and len(cfg.openidrp_allowed_op) == 1:
