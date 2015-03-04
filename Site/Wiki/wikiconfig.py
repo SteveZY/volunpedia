@@ -107,7 +107,14 @@ class Config(multiconfig.DefaultConfig):
     # Link spam protection for public wikis (Uncomment to enable)
     # Needs a reliable internet connection.
     from MoinMoin.security.antispam import SecurityPolicy
-
+    
+    from MoinMoin.auth import MoinAuth
+    from MoinMoin.auth.openid import OpenIDQWAuth
+    auth = [MoinAuth(), OpenIDQWAuth()]
+    #auth = [OpenIDQWAuth(), MoinAuth()]
+    cookie_lifetime = (2, 12)
+    qq_app_id = 101195180
+    wb_app_key = 3720383348    
 
     # Mail --------------------------------------------------------------
 
@@ -172,4 +179,6 @@ class Config(multiconfig.DefaultConfig):
     #chart_options = {'width': 600, 'height': 300}
 
     surge_action_limits = None
-
+    
+    #from MoinMoin import log
+    #log.load_config('/usr/share/moin/config/logging/logfile_debug_auth')

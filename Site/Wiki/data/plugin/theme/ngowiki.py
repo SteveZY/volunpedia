@@ -147,6 +147,9 @@ class Theme(rightsidebar.Theme):
         head.append(u'\n<script type="text/javascript" src="%s/%s/js/jquery.js"></script>' % (self.cfg.url_prefix_static, self.name))
         head.append(u'\n<script type="text/javascript" src="%s/%s/js/json2.js"></script>' % (self.cfg.url_prefix_static, self.name))
         head.append(u'\n<script type="text/javascript" src="%s/%s/js/ngowiki_v20140311.js"></script>' % (self.cfg.url_prefix_static, self.name))
+        head.append(u'\n<script type="text/javascript" src="http://qzonestyle.gtimg.cn/qzone/openapi/qc_loader.js" data-appid=%s data-redirecturi="" charset="utf-8"></script>' % self.cfg.qq_app_id)
+        head.append(u'\n<script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=%s&debug=true" type="text/javascript" charset="utf-8"></script>' % self.cfg.wb_app_key)
+        head.append(u'\n<script type="text/javascript" src="%s/%s/js/openid.js"></script>' % (self.cfg.url_prefix_static, self.name))
         head.append(u'\n<script type="text/javascript">window.url_prefix_static="%s";</script>' % (self.cfg.url_prefix_static))
         head.append(u'\n<meta property="qc:admins" content="46715120776674560541163757" />')
         head.append(u'\n<meta property="wb:webmaster" content="1a605196e8a8f55c" />')
@@ -333,6 +336,10 @@ var e = document.getElementById('searchinput');
 searchChange(e);
 searchBlur(e);
 //-->
+$("a#logout").click(function(){
+    wb_logout();
+    qq_logout();
+});
 </script>
 ''' % d
         return html

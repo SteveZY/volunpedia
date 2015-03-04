@@ -391,7 +391,10 @@ def handle_login(request, userobj=None, username=None, password=None,
         'multistage': (stage and True) or None
     }
     for authmethod in request.cfg.auth:
+        #logging.info('CURRENT STAGE: %s, %s' % (params, authmethod.name))
         if stage and authmethod.name != stage:
+            continue
+        if openid_identifier and  authmethod.name != 'openidqw':
             continue
         ret = authmethod.login(request, userobj, **params)
 

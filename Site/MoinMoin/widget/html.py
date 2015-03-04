@@ -565,6 +565,7 @@ class SPAN(CompositeElement):
     "generic language/style container"
     _ATTRS = {
         'class': None,
+        'id': None,
     }
 
 class STRONG(CompositeElement):
